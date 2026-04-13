@@ -45,12 +45,7 @@ function Footer() {
 
   // Link declarations - organize all links here
   const footerLinks = {
-    help: [
-      { label: "CONTACT US", href: "/contact" },
-      // { label: "SHIPPING INFO", href: "/shipping" },
-      // { label: "RETURNS", href: "/returns" },
-      // { label: "SIZE GUIDE", href: "/size-guide" }
-    ],
+  
     company: [
       { label: "ABOUT US", href: "/about" }
     ],
@@ -61,8 +56,8 @@ function Footer() {
       { label: "COOKIES", href: "/cookies" }
     ],
     social: [
-      { label: "INSTAGRAM", href: process.env.NEXT_PUBLIC_INSTA || "#" },
-      { label: "WHATSAPP", href: process.env.NEXT_PUBLIC_WHATSAPP || "#" },
+      { label: "INSTAGRAM", href: process.env.NEXT_PUBLIC_INSTA || "https://instagram.com/eco.loot" },
+      { label: "WHATSAPP", href: process.env.NEXT_PUBLIC_WHATSAPP || "https://wa.me/919846197088" },
       // { label: "LINKEDIN", href: process.env.NEXT_PUBLIC_LINKEDIN || "#" },
       // { label: "TIKTOK", href: process.env.NEXT_PUBLIC_TIKTOK || "#" },
       // { label: "PINTEREST", href: process.env.NEXT_PUBLIC_PINTEREST || "#" }
@@ -102,84 +97,7 @@ function Footer() {
       </div>
 
       {/* Main Footer Content */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 max-w-4xl mx-auto">
-          {/* HELP Column */}
-          <div>
-            <h3 className="font-montserrat font-medium text-sm uppercase tracking-widest mb-6">
-              HELP
-            </h3>
-            <div className="space-y-3">
-              {footerLinks.help.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="block font-montserrat text-xs text-gray-600 uppercase tracking-wide hover:text-black transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* COMPANY Column */}
-          <div>
-            <h3 className="font-montserrat font-medium text-sm uppercase tracking-widest mb-6">
-              COMPANY
-            </h3>
-            <div className="space-y-3">
-              {footerLinks.company.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="block font-montserrat text-xs text-gray-600 uppercase tracking-wide hover:text-black transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* SHOP BY CATEGORY - Dynamic */}
-          <div>
-            <h3 className="font-montserrat font-medium text-sm uppercase tracking-widest mb-6">
-              SHOP BY CATEGORY
-            </h3>
-            <div className="space-y-3">
-              {footerLinks.shopByCategory.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  className="block font-montserrat text-xs text-gray-600 uppercase tracking-wide hover:text-black transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* INSTAGRAM */}
-          <div>
-            <h3 className="font-montserrat font-medium text-sm uppercase tracking-widest mb-6">
-              INSTAGRAM
-            </h3>
-            <div className="space-y-4">
-              <p className="font-montserrat text-xs text-gray-600 uppercase tracking-wide">
-                FOLLOW THENORTHSIDE
-              </p>
-              <div className="flex flex-col space-y-3">
-                <Link href={footerLinks.social[0].href}>
-                  <Button className="w-full font-montserrat text-xs uppercase tracking-wide border border-black bg-transparent text-black hover:bg-black hover:text-white transition-colors duration-300 py-3">
-                    <Instagram className="w-4 h-4 mr-2" />
-                    FOLLOW
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    
       {/* Social Links Bar */}
       <div className="bg-primary text-white py-4">
         <div className="container mx-auto px-4">
@@ -209,7 +127,7 @@ function Footer() {
             <p className="font-montserrat text-xs text-gray-600 uppercase tracking-wide">
               © {currentYear} {site.name}. All rights reserved.
             </p>
-            <nav className="flex gap-6">
+            {/* <nav className="flex gap-6">
               {footerLinks.legal.map((link) => (
                 <Link
                   key={link.label}
@@ -219,7 +137,7 @@ function Footer() {
                   {link.label}
                 </Link>
               ))}
-            </nav>
+            </nav> */}
           </div>
         </div>
       </div>

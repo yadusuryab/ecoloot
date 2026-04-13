@@ -16,7 +16,6 @@ const Header = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  const topTexts = ["NORTHSIDE", "#WEARENORTHSIDE", "LATEST COLLECTIONS"];
 
   // Handle mobile detection
   useEffect(() => {
@@ -30,16 +29,7 @@ const Header = () => {
   }, []);
 
   // Rotate top bar text with animation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setCurrentTopText((prev) => (prev + 1) % topTexts.length);
-        setIsAnimating(false);
-      }, 500); // Increased duration for smoother fade
-    }, 4000); // Increased interval for better readability
-    return () => clearInterval(interval);
-  }, []);
+  
 
   // Focus search input when search is opened
   useEffect(() => {
@@ -185,18 +175,7 @@ const Header = () => {
             {/* Right Icons */}
             <div className="flex items-center gap-2">
               {/* Search Icon */}
-              <button
-                onClick={handleSearchToggle}
-                className="p-2 transition-all duration-300 ease-out hover:scale-110 active:scale-95 hover:opacity-70"
-                aria-label="Search"
-              >
-                <SearchIcon />
-              </button>
-
-              {/* Cart */}
-              <div className="transform transition-transform duration-300 hover:scale-110">
-                <CartButton />
-              </div>
+            
               <button
                 onClick={handleMenuToggle}
                 className="p-2 transition-all duration-300 ease-out hover:scale-110 active:scale-95 hover:opacity-70"
@@ -332,11 +311,7 @@ const Header = () => {
             <ul className="space-y-8">
               {[
                 { href: "/", label: "HOME" },
-                { href: "/collections", label: "COLLECTIONS" },
-                { href: "/products", label: "ALL PRODUCTS" },
-                { href: "/about", label: "ABOUT" },
-                { href: "/terms-conditions", label: "TERMS" },
-                { href: "/contact", label: "CONTACT" },
+{ href: "/contact", label: "CONTACT" },
               ].map((item) => (
                 <li key={item.href}>
                   <Link

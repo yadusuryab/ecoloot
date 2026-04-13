@@ -1,212 +1,225 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { IconBrandInstagram, IconMail, IconPhone } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
+
+// ── Contact channels ──────────────────────────────────────────────────────────
+const CHANNELS = [
+  {
+    icon: (
+    <IconMail/>
+    ),
+    label: "Email",
+    value: process.env.NEXT_PUBLIC_EMAIL,
+    href: `mailto:${process.env.NEXT_PUBLIC_EMAIL}`,
+    hint: "We reply within 24 hours",
+  },
+  {
+    icon: (
+     <IconPhone/>
+    ),
+    label: "Phone / WhatsApp",
+    value:'+91 98461 97088',
+    href: 'https://wa.me/919846197088',
+    hint: "Mon – Sat, 9 am – 8 pm IST",
+  },
+  {
+    icon: (
+     <IconBrandInstagram/>
+    ),
+    label: "Instagram",
+    value: "@eco.loot",
+    href:'https://instagram.com/eco.loot',
+    hint: "DM us anytime",
+  },
+];
+
+type FormState = "idle" | "sending" | "sent" | "error";
 
 export default function ContactPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState<FormState>("idle");
+  const [focused, setFocused] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    // Format the message for WhatsApp
-    const whatsappMessage = `*New Contact Form Submission*%0A%0A*Name:* ${formData.name}%0A*Email:* ${formData.email}%0A*Message:* ${formData.message}%0A%0A_Submitted via THE NORTH SIDE website_`;
-
-    // Redirect to WhatsApp with pre-filled message
-    const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_PHONE || '6238424799'}?text=${whatsappMessage}`;
+    if (!form.name || !form.email || !form.message) return;
     
-    // Open WhatsApp in new tab
-    window.open(whatsappUrl, '_blank');
+    setStatus("sending");
     
-    // Reset form after a short delay
-    setTimeout(() => {
-      setFormData({ name: '', email: '', message: '' });
-      setIsSubmitting(false);
-    }, 1000);
+    try {
+      // Get WhatsApp number from environment variable
+      const whatsappNumber = process.env.NEXT_PUBLIC_PHONE;
+      
+      if (!whatsappNumber) {
+        throw new Error("WhatsApp number not configured");
+      }
+      
+      // Format the message
+      const message = `*New Contact Form Submission*%0a%0a*Name:* ${form.name}%0a*Email:* ${form.email}%0a*Message:* ${form.message}`;
+      
+      // Create WhatsApp URL (remove any non-numeric characters from phone number)
+      const cleanNumber = whatsappNumber.replace(/\D/g, '');
+      const whatsappUrl = `https://wa.me/${cleanNumber}?text=${message}`;
+      
+      // Open WhatsApp in a new tab
+      window.open(whatsappUrl, '_blank');
+      
+      // Optional: Also simulate API call or track submission
+      await new Promise((r) => setTimeout(r, 500));
+      
+      setStatus("sent");
+      setForm({ name: "", email: "", message: "" });
+      
+      // Reset status after 3 seconds
+      setTimeout(() => setStatus("idle"), 3000);
+      
+    } catch (error) {
+      console.error("Error:", error);
+      setStatus("error");
+      
+      // Reset error status after 3 seconds
+      setTimeout(() => setStatus("idle"), 3000);
+    }
   };
 
-  const isFormValid = formData.name && formData.email && formData.message;
+  const inputBase = `w-full bg-transparent text-sm font-light leading-relaxed
+     outline-none resize-none
+    transition-colors duration-200`;
+
+  const fieldWrapper = (name: string) =>
+    `relative border rounded-xl px-4 py-3.5 transition-all duration-250
+    ${focused === name
+      ? "ring-2 ring-primary"
+      : "ring-none"}`;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Contact THE NORTH SIDE
-          </h1>
-          <p className="text-lg text-gray-600 max-w-md mx-auto">
-            Get in touch with us. We'll get back to you as soon as possible.
-          </p>
-        </div>
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400;500&display=swap');
 
-        {/* Contact Form */}
-        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name Field */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
-                placeholder="Enter your full name"
-              />
+
+
+        .glass {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid var(--border);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+        }
+
+        .gradient-line {
+          height: 1px;
+          background: linear-gradient(to right, transparent, rgba(20,184,154,0.3), transparent);
+        }
+
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) both; }
+        .d1 { animation-delay: 0.05s; }
+        .d2 { animation-delay: 0.13s; }
+        .d3 { animation-delay: 0.22s; }
+        .d4 { animation-delay: 0.32s; }
+
+        .channel-card {
+          transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
+        }
+        .channel-card:hover {
+          border-color: rgba(20,184,154,0.3);
+          background: rgba(20,184,154,0.04);
+          transform: translateY(-2px);
+        }
+
+        .submit-btn {
+          background: linear-gradient(135deg, #0d6e5e 0%, #14b89a 100%);
+          transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+        .submit-btn:hover:not(:disabled) {
+          opacity: 0.88;
+          transform: translateY(-1px);
+          box-shadow: 0 8px 24px rgba(20,184,154,0.25);
+        }
+        .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .teal-dot {
+          display: inline-block;
+          width: 6px; height: 6px;
+          border-radius: 50%;
+          background: var(--teal-light);
+          box-shadow: 0 0 8px rgba(20,184,154,0.6);
+        }
+      `}</style>
+
+      <div >
+        <div className="max-w-5xl mx-auto px-5 sm:px-8 py-16 md:py-24">
+
+          {/* ── Header ── */}
+          <div className="mb-14 md:mb-20">
+            <div className="fade-up d1 flex items-center gap-3 mb-5">
+              <span className="text-[10px] tracking-[0.3em] uppercase font-mono">
+                Get in touch
+              </span>
             </div>
-
-            {/* Email Field */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address *
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors"
-                placeholder="Enter your email address"
-              />
-            </div>
-
-            {/* Message Field */}
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                Message *
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                required
-                rows={5}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-colors resize-vertical"
-                placeholder="Tell us how we can help you..."
-              />
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={!isFormValid || isSubmitting}
-              className={`w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition-colors ${
-                isFormValid && !isSubmitting
-                  ? 'bg-[#111111] hover:bg-[#333333] cursor-pointer'
-                  : 'bg-gray-400 cursor-not-allowed'
-              }`}
-            >
-              {isSubmitting ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Redirecting to WhatsApp...
-                </span>
-              ) : (
-                'Contact via WhatsApp'
-              )}
-            </button>
-          </form>
-
-          {/* Additional Contact Information */}
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Other Ways to Reach Us</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-gray-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
-                </svg>
-                <a 
-                  href={`tel:${process.env.NEXT_PUBLIC_PHONE || '6238424799'}`}
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  {process.env.NEXT_PUBLIC_PHONE || '6238424799'}
-                </a>
-              </div>
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-gray-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                </svg>
-                <a 
-                  href={`mailto:${process.env.NEXT_PUBLIC_EMAIL || 'thenorthsidetns@gmail.com'}`}
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  {process.env.NEXT_PUBLIC_EMAIL || 'thenorthsidetns@gmail.com'}
-                </a>
-              </div>
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-gray-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
-                </svg>
-                <span className="text-gray-600">
-                  {process.env.NEXT_PUBLIC_ADDR || 'kerala'}
-                </span>
-              </div>
-              <div className="flex items-center">
-                <svg className="w-5 h-5 text-gray-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clipRule="evenodd"/>
-                </svg>
-                <a 
-                  href={process.env.NEXT_PUBLIC_INSTA || 'https://www.instagram.com/thenorthside.in/'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Follow on Instagram
-                </a>
-              </div>
-            </div>
+            <h1 className="fade-up d2 serif text-2xl font-bold
+              leading-[0.92] tracking-tight ">
+              We'd love to<br /><em className="text-primary">hear from you.</em>
+            </h1>
+            <p className="fade-up d3 mt-5 text-muted-foreground text-sm md:text-base font-light
+              leading-relaxed max-w-sm">
+              Questions, order support, or just want to say hi — we're quick to reply.
+            </p>
           </div>
-        </div>
 
-        {/* Info Box */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/>
-              </svg>
+
+          {/* ── Two-column layout ── */}
+          <div className="grid md:grid-cols-[1fr_1.1fr] gap-10 md:gap-16 items-start">
+
+            {/* LEFT — contact channels ── */}
+            <div className="fade-up d3 space-y-3">
+              <p className="text-[10px] tracking-[0.25em] uppercase font-mono  mb-6">
+                Reach us directly
+              </p>
+
+              {CHANNELS.map((ch) => (
+                <Link
+                  key={ch.label}
+                  href={ch.href || ''}
+                target="_blank"
+                  rel="noopener noreferrer"
+                  className="channel-card ring-1 ring-primary/20  flex  justify-between items-start gap-4 p-5 rounded-2xl no-underline block"
+                >
+                  <div className="flex gap-2">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0
+                     bg-primary/10 text-primary 
+                   ">
+                    {ch.icon}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs tracking-[0.18em]  uppercase font-mono mb-0.5">
+                      {ch.label}
+                    </p>
+                    <p className="text-sm text-primary font-bold text-wrap max-w-[200px]">{ch.value}</p>
+                    <p className="text-[11.5px] text-muted-foreground mt-0.5 font-light">{ch.hint}</p>
+                  </div>
+                  </div>
+                 
+                 <ArrowRight className="text-primary"/>
+                </Link>
+              ))}
+
+              {/* Business hours */}
+          
             </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">
-                How it works
-              </h3>
-              <div className="mt-2 text-sm text-blue-700">
-                <p>
-                  After clicking "Contact via WhatsApp", you'll be redirected to WhatsApp with your message pre-filled. 
-                  Simply press send to contact THE NORTH SIDE team directly.
-                </p>
-              </div>
-            </div>
+
+            {/* RIGHT — message form ── */}
+       
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
